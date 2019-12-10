@@ -1,0 +1,157 @@
+# Dataset parameters
+# Each dataset should contain 2 folders train and test
+# Each video can be represented as:
+#   - an image of concatenated frames
+#   - '.mp4' or '.gif'
+#   - folder with all frames from a specific video
+# In case of Taichi. Same (youtube) video can be splitted in many parts (chunks). Each part has a following
+# format (id)#other#info.mp4. For example '12335#adsbf.mp4' has an id 12335. In case of TaiChi id stands for youtube
+# video id.
+dataset_params:
+  # Path to data, data can be stored in several formats: .mp4 or .gif videos, stacked .png images or folders with frames.
+  root_dir: data/taichi-png
+  # Image shape, needed for staked .png format.
+  image_shape: [256, 256, 3]
+  # In case of TaiChi single video can be splitted in many chunks, or the maybe several videos for single person.
+  # In this case epoch can be a pass over different videos (if id_sampling=True) or over different chunks (if id_sampling=False)
+  # If the name of the video '12335#adsbf.mp4' the id is assumed to be 12335
+  id_sampling: True
+  # List with pairs for animation, None for random pairs
+  pairs_list: data/taichi256.csv
+  # Augmentation parameters see augmentation.py for all posible augmentations
+  augmentation_params:
+    flip_param:
+      horizontal_flip: True
+      time_flip: True
+    jitter_param:
+      brightness: 0.1
+      contrast: 0.1
+      saturation: 0.1
+      hue: 0.1
+
+# Defines model architecture
+model_params:
+  common_params:
+    # Number of keypoint
+    num_kp: 10
+    # Number of channels per image
+    num_channels: 3
+    # Using first or zero order model
+    estimate_jacobian: True
+  kp_detector_params:
+     # Softmax temperature for keypoint heatmaps
+     temperature: 0.1
+     # Number of features mutliplier
+     block_expansion: 32
+     # Maximum allowed number of features
+     max_features: 1024
+     # Number of block in Unet. Can be increased or decreased depending or resolution.
+     num_blocks: 5
+     # Keypioint is predicted on smaller images for better performance,
+     # scale_factor=0.25 means that 256x256 image will be resized to 64x64
+     scale_factor: 0.25
+  generator_params:
+    # Number of features mutliplier
+    block_expansion: 64
+    # Maximum allowed number of features
+    max_features: 512
+    # Number of downsampling blocks in Jonson architecture.
+    # Can be increased or decreased depending or resolution.
+    num_down_blocks: 2
+    # Number of ResBlocks  in Jonson architecture.
+    num_bottleneck_blocks: 6
+    # Use occlusion map or not
+    estimate_occlusion_map: True
+
+    dense_motion_params:
+      # Number of features mutliplier
+      block_expansion: 64
+      # Maximum allowed number of features
+      max_features: 1024
+      # Number of block in Unet. Can be increased or decreased depending or resolution.
+      num_blocks: 5
+      # Dense motion is predicted on smaller images for better performance,
+      # scale_factor=0.25 means that 256x256 image will be resized to 64x64
+      scale_factor: 0.25
+  discriminator_params:
+    # Discriminator can be multiscale, if you want 2 discriminator on original
+    # resolution and half of the original, specify scales: [1, 0.5]
+    scales: [1]
+    # Number of features mutliplier
+    block_expansion: 32
+    # Maximum allowed number of features
+    max_features: 512
+    # Number of blocks. Can be increased or decreased depending or resolution.
+    num_blocks: 4
+
+# Parameters of training
+train_params:
+  # Number of training epochs 
+  num_epochs: 100
+  # For better i/o performance when number of videos is small number of epochs can be multiplied by this number.
+  # Thus effectivlly with num_repeats=100 each epoch is 100 times larger. 
+  num_repeats: 150
+  # Drop learning rate by 10 times after this epochs 
+  epoch_milestones: [60, 90]
+  # Initial learing rate for all modules
+  lr_generator: 2.0e-4
+  lr_discriminator: 2.0e-4
+  lr_kp_detector: 2.0e-4
+  batch_size: 30
+  # Scales for perceptual pyramide loss. If scales = [1, 0.5, 0.25, 0.125] and image resolution is 256x256,
+  # than the loss will be computer on resolutions 256x256, 128x128, 64x64, 32x32.
+  scales: [1, 0.5, 0.25, 0.125]
+  # Save checkpoint this frequently. If checkpoint_freq=50, checkpoint will be saved every 50 epochs.
+  checkpoint_freq: 50
+  # Parameters of transform for equivariance loss
+  transform_params:
+    # Sigma for affine part
+    sigma_affine: 0.05
+    # Sigma for deformation part
+    sigma_tps: 0.005
+    # Number of point in the deformation grid
+    points_tps: 5
+  loss_weights:
+    # Weight for LSGAN loss in generator, 0 for no adversarial loss.
+    generator_gan: 0
+    # Weight for LSGAN loss in discriminator
+    discriminator_gan: 1
+    # Weights for feature matching loss, the number should be the same as number of blocks in discriminator.
+    feature_matching: [10, 10, 10, 10]
+    # Weights for perceptual loss.
+    perceptual: [10, 10, 10, 10, 10]
+    # Weights for value equivariance.
+    equivariance_value: 10
+    # Weights for jacobian equivariance.
+    equivariance_jacobian: 10
+
+# Parameters of reconstruction
+reconstruction_params:
+  # Maximum number of videos for reconstruction
+  num_videos: 1000
+  # Format for visualization, note that results will be also stored in staked .png.
+  format: '.mp4'
+
+# Parameters of animation
+animate_params:
+  # Maximum number of pairs for animation, the pairs will be either taken from pairs_list or random.
+  num_pairs: 50
+  # Format for visualization, note that results will be also stored in staked .png.
+  format: '.mp4'
+  # Normalization of diriving keypoints
+  normalization_params:
+    # Increase or decrease relative movement scale depending on the size of the object
+    adapt_movement_scale: False
+    # Apply only relative displacement of the keypoint
+    use_relative_movement: True
+    # Apply only relative change in jacobian
+    use_relative_jacobian: True
+
+# Visualization parameters
+visualizer_params:
+  # Draw keypoints of this size, increase or decrease depending on resolution
+  kp_size: 5
+  # Draw white border around images
+  draw_border: True
+  # Color map for keypoints
+  colormap: 'gist_rainbow'
