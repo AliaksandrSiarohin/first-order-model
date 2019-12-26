@@ -90,7 +90,7 @@ that the object in the first frame of the video and in the source image have the
 
 3) **Fashion**. Follow the instruction on dataset downloading [from](https://vision.cs.ubc.ca/datasets/fashion/).
 
-4) **Taichi**. To appear soon.
+4) **Taichi**. Follow the instructions in [data/taichi-loading](data/taichi-loading/README.md)
 
 
 
