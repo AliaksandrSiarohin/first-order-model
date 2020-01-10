@@ -36,7 +36,7 @@ python demo.py  --config config/dataset_name.yaml --driving_video path/to/drivin
 The result will be stored in ```result.mp4```.
 
 ### Training
-
+**Note: It is important to use pytroch==1.0.0 for training. Higher versions of pytorch have strage bilinear warping behavior, because of it model diverge.**
 To train a model on specific dataset run:
 ```
 CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py config/dataset_name.yaml --device_ids 0,1,2,3
