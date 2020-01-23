@@ -11,7 +11,7 @@ dataset_params:
   # Path to data, data can be stored in several formats: .mp4 or .gif videos, stacked .png images or folders with frames.
   root_dir: data/taichi-png
   # Image shape, needed for staked .png format.
-  image_shape: [256, 256, 3]
+  frame_shape: [256, 256, 3]
   # In case of TaiChi single video can be splitted in many chunks, or the maybe several videos for single person.
   # In this case epoch can be a pass over different videos (if id_sampling=True) or over different chunks (if id_sampling=False)
   # If the name of the video '12335#adsbf.mp4' the id is assumed to be 12335

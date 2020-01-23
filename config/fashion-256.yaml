@@ -1,6 +1,6 @@
 dataset_params:
   root_dir: data/fashion-png
-  image_shape: [256, 256, 3]
+  frame_shape: [256, 256, 3]
   id_sampling: False
   augmentation_params:
     flip_param:
