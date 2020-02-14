@@ -6,6 +6,8 @@ This repository contains the source code for the paper [First Order Motion Model
 
 The videos on the left show the driving videos. The first row on the right for each dataset shows the source videos. The bottom row contains the animated sequences with motion transferred from the driving video and object taken from the source image. We trained a separate network for each task.
 
+### VoxCeleb Dataset
+![Screenshot](sup-mat/vox-teaser.gif)
 ### Fashion Dataset
 ![Screenshot](sup-mat/fashion-teaser.gif)
 ### MGIF Dataset
@@ -28,12 +30,15 @@ There are several configuration (```config/dataset_name.yaml```) files one for e
 Checkpoints can be found under following link: [checkpoint](https://yadi.sk/d/lEw8uRm140L_eQ).
 
 ### Animation Demo
-
 To run a demo, download checkpoint and run the following command:
 ```
 python demo.py  --config config/dataset_name.yaml --driving_video path/to/driving --source_image path/to/source --checkpoint path/to/checkpoint --relative --adapt_scale
 ```
 The result will be stored in ```result.mp4```.
+
+
+### Colab Demo 
+We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```, also you can check ```face-swap-demo.ipynb```.
 
 ### Training
 **Note: It is important to use pytroch==1.0.0 for training. Higher versions of pytorch have strage bilinear warping behavior, because of it model diverge.**
@@ -77,10 +82,15 @@ In this way there are no specific requirements for the driving video and source 
 However this usually leads to poor performance since unrelevant details such as shape is transfered.
 Check animate parameters in ```taichi-256.yaml``` to enable this mode.
 
+<img src="sup-mat/absolute-demo.gif" width="512"> 
+
 2) <i>Animation using relative coordinates:</i> from the driving video we first estimate the relative movement of each keypoint,
 then we add this movement to the absolute position of keypoints in the source image.
 This keypoint along with source image is used for animation. This usually leads to better performance, however this requires
-that the object in the first frame of the video and in the source image have the same pose.
+that the object in the first frame of the video and in the source image have the same pose
+
+<img src="sup-mat/relative-demo.gif" width="512"> 
+
 
 ### Datasets
 
@@ -90,13 +100,16 @@ that the object in the first frame of the video and in the source image have the
 
 3) **Fashion**. Follow the instruction on dataset downloading [from](https://vision.cs.ubc.ca/datasets/fashion/).
 
-4) **Taichi**. Follow the instructions in [data/taichi-loading](data/taichi-loading/README.md)
+4) **Taichi**. Follow the instructions in [data/taichi-loading](data/taichi-loading/README.md) or instructions from https://github.com/AliaksandrSiarohin/video-preprocessing. 
 
+5) **Nemo**. Please follow the [instructions](https://www.uva-nemo.org/) on how to download the dataset. Then the dataset should be preprocessed using scripts from https://github.com/AliaksandrSiarohin/video-preprocessing.
+ 
+6) **VoxCeleb**. Please follow the instruction from https://github.com/AliaksandrSiarohin/video-preprocessing.
 
 
 ### Training on your own dataset
-1) Resize all the videos to the same size e.g 256x256, the videos can be in '.gif' or '.mp4' format.
-But we recommend for each video to make a separate folder with all the frames in '.png' format, because this format is loss-less, and it has better i/o performance.
+1) Resize all the videos to the same size e.g 256x256, the videos can be in '.gif', '.mp4' or folder with images.
+We recommend the later, for each video make a separate folder with all the frames in '.png' format. This format is loss-less, and it has better i/o performance.
 
 2) Create a folder ```data/dataset_name``` with 2 subfolders ```train``` and ```test```, put training videos in the ```train``` and testing in the ```test```.
 

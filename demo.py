@@ -64,10 +64,34 @@ def make_animation(source_image, driving_video, generator, kp_detector, relative
             predictions.append(np.transpose(out['prediction'].data.cpu().numpy(), [0, 2, 3, 1])[0])
     return predictions
 
+def find_best_frame(source, driving):
+    import face_alignment
+
+    def normalize_kp(kp):
+        kp = kp - kp.mean(axis=0, keepdims=True)
+        area = ConvexHull(kp[:, :2]).volume
+        area = np.sqrt(area)
+        kp[:, :2] = kp[:, :2] / area
+        return kp
+
+    fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=True)
+    kp_source = fa.get_landmarks(255 * source)[0]
+    kp_source = normalize_kp(kp_source)
+    norm  = float('inf')
+    frame_num = 0
+    for i, image in tqdm(enumerate(driving)):
+        kp_driving = fa.get_landmarks(255 * image)[0]
+        kp_driving = normalize_kp(kp_driving)
+        new_norm = (np.abs(kp_source - kp_driving) ** 2).sum()
+        if new_norm < norm:
+            norm = new_norm
+            frame_num = i
+    return frame_num
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--config", required=True, help="path to config")
-    parser.add_argument("--checkpoint", default='taichi-cpk.pth.tar', help="path to checkpoint to restore")
+    parser.add_argument("--checkpoint", default='vox-cpk.pth.tar', help="path to checkpoint to restore")
 
     parser.add_argument("--source_image", default='sup-mat/source.png', help="path to source image")
     parser.add_argument("--driving_video", default='sup-mat/source.png', help="path to driving video")
@@ -76,6 +100,13 @@ if __name__ == "__main__":
     parser.add_argument("--relative", dest="relative", action="store_true", help="use relative or absolute keypoint coordinates")
     parser.add_argument("--adapt_scale", dest="adapt_scale", action="store_true", help="adapt movement scale based on convex hull of keypoints")
 
+    parser.add_argument("--find_best_frame", dest="find_best_frame", action="store_true", 
+                        help="Generate from the frame that is the most alligned with source. (Only for faces, requires face_aligment lib)")
+
+    parser.add_argument("--best_frame", dest="best_frame", type=int, default=None,  
+                        help="Set frame to start from.")
+ 
+ 
     parser.set_defaults(relative=False)
     parser.set_defaults(adapt_scale=False)
 
@@ -91,6 +122,15 @@ if __name__ == "__main__":
     driving_video = [resize(frame, (256, 256))[..., :3] for frame in driving_video]
     generator, kp_detector = load_checkpoints(config_path=opt.config, checkpoint_path=opt.checkpoint)
 
-    predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale)
+    if opt.find_best_frame or opt.best_frame is not None:
+        i = opt.best_frame if opt.best_frame is not None else find_best_frame(source_image, driving_video)
+        print (i)
+        driving_forward = driving_video[i:]
+        driving_backward = driving_video[:(i+1)][::-1]
+        predictions_forward = make_animation(source_image, driving_forward, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale)
+        predictions_backward = make_animation(source_image, driving_backward, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale)
+        predictions = predictions_backward[::-1] + predictions_forward
+    else:
+        predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale)
     imageio.mimsave(opt.result_video, predictions, fps=fps)
 

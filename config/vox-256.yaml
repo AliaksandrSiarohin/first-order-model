@@ -1,0 +1,83 @@
+dataset_params:
+  root_dir: data/vox-png
+  frame_shape: [256, 256, 3]
+  id_sampling: True
+  pairs_list: data/vox256.csv
+  augmentation_params:
+    flip_param:
+      horizontal_flip: True
+      time_flip: True
+    jitter_param:
+      brightness: 0.1
+      contrast: 0.1
+      saturation: 0.1
+      hue: 0.1
+
+
+model_params:
+  common_params:
+    num_kp: 10
+    num_channels: 3
+    estimate_jacobian: True
+  kp_detector_params:
+     temperature: 0.1
+     block_expansion: 32
+     max_features: 1024
+     scale_factor: 0.25
+     num_blocks: 5
+  generator_params:
+    block_expansion: 64
+    max_features: 512
+    num_down_blocks: 2
+    num_bottleneck_blocks: 6
+    estimate_occlusion_map: True
+    dense_motion_params:
+      block_expansion: 64
+      max_features: 1024
+      num_blocks: 5
+      scale_factor: 0.25
+  discriminator_params:
+    scales: [1]
+    block_expansion: 32
+    max_features: 512
+    num_blocks: 4
+    sn: True
+
+train_params:
+  num_epochs: 100
+  num_repeats: 75
+  epoch_milestones: [60, 90]
+  lr_generator: 2.0e-4
+  lr_discriminator: 2.0e-4
+  lr_kp_detector: 2.0e-4
+  batch_size: 40
+  scales: [1, 0.5, 0.25, 0.125]
+  checkpoint_freq: 50
+  transform_params:
+    sigma_affine: 0.05
+    sigma_tps: 0.005
+    points_tps: 5
+  loss_weights:
+    generator_gan: 0
+    discriminator_gan: 1
+    feature_matching: [10, 10, 10, 10]
+    perceptual: [10, 10, 10, 10, 10]
+    equivariance_value: 10
+    equivariance_jacobian: 10
+
+reconstruction_params:
+  num_videos: 1000
+  format: '.mp4'
+
+animate_params:
+  num_pairs: 50
+  format: '.mp4'
+  normalization_params:
+    adapt_movement_scale: False
+    use_relative_movement: True
+    use_relative_jacobian: True
+
+visualizer_params:
+  kp_size: 5
+  draw_border: True
+  colormap: 'gist_rainbow'
