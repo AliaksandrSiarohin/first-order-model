@@ -67,10 +67,10 @@ def run(data):
             for entry in all_chunks_dict:
                 if (i * ref_fps >= entry['start'] * fps) and (i * ref_fps < entry['end'] * fps):
                     left, top, right, bot = entry['bbox']
-                    left = int(left * (ref_width / frame.shape[1]))
-                    top = int(top * (ref_height / frame.shape[0]))
-                    right = int(right * (ref_width / frame.shape[1]))
-                    bot = int(bot * (ref_height / frame.shape[0]))
+                    left = int(left / (ref_width / frame.shape[1]))
+                    top = int(top / (ref_height / frame.shape[0]))
+                    right = int(right / (ref_width / frame.shape[1]))
+                    bot = int(bot / (ref_height / frame.shape[0]))
                     crop = frame[top:bot, left:right]
                     if args.image_shape is not None:
                        crop = img_as_ubyte(resize(crop, args.image_shape, anti_aliasing=True))
