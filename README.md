@@ -38,7 +38,7 @@ The result will be stored in ```result.mp4```.
 
 
 ### Colab Demo 
-We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```, also you can check ```face-swap-demo.ipynb```.
+We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```.
 
 ### Training
 **Note: It is important to use pytroch==1.0.0 for training. Higher versions of pytorch have strage bilinear warping behavior, because of it model diverge.**
