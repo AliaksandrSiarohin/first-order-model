@@ -129,7 +129,7 @@ if __name__ == "__main__":
         driving_backward = driving_video[:(i+1)][::-1]
         predictions_forward = make_animation(source_image, driving_forward, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale)
         predictions_backward = make_animation(source_image, driving_backward, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale)
-        predictions = predictions_backward[::-1] + predictions_forward
+        predictions = predictions_backward[::-1] + predictions_forward[1:]
     else:
         predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale)
     imageio.mimsave(opt.result_video, predictions, fps=fps)
