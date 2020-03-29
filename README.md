@@ -27,7 +27,7 @@ There are several configuration (```config/dataset_name.yaml```) files one for e
 
 
 ### Pre-trained checkpoint
-Checkpoints can be found under following link: [google-drive](https://drive.google.com/open?id=1kZ1gCnpfU0BnpdU47pLM_TQ6RypDDqgw) or [yandex-disk](https://yadi.sk/d/lEw8uRm140L_eQ).
+Checkpoints can be found under following link: [google-drive](https://drive.google.com/open?id=1PyQJmkdCsAkOYwUyaj_l-l0as-iLDgeH) or [yandex-disk](https://yadi.sk/d/lEw8uRm140L_eQ).
 
 ### Animation Demo
 To run a demo, download checkpoint and run the following command:
