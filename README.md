@@ -50,7 +50,7 @@ python setup.py install
 We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```.
 
 ### Training
-**Note: It is important to use pytroch==1.0.0 for training. Higher versions of pytorch have strage bilinear warping behavior, because of it model diverge.**
+**Note: It is important to use pytorch==1.0.0 for training. Higher versions of pytorch have strage bilinear warping behavior, because of it model diverge.**
 To train a model on specific dataset run:
 ```
 CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py config/dataset_name.yaml --device_ids 0,1,2,3
