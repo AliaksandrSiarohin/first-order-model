@@ -1,6 +1,6 @@
 import matplotlib
 matplotlib.use('Agg')
-import os
+import os, sys
 import yaml
 from argparse import ArgumentParser
 from tqdm import tqdm
@@ -17,7 +17,8 @@ from modules.keypoint_detector import KPDetector
 from animate import normalize_kp
 from scipy.spatial import ConvexHull
 
-
+if sys.version_info[0] < 3:
+    raise Exception("You must use Python 3 or higher. Recommended version is Python 3.7")
 
 def load_checkpoints(config_path, checkpoint_path):
 
