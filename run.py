@@ -2,7 +2,7 @@ import matplotlib
 
 matplotlib.use('Agg')
 
-import os
+import os, sys
 import yaml
 from argparse import ArgumentParser
 from time import gmtime, strftime
@@ -21,6 +21,10 @@ from reconstruction import reconstruction
 from animate import animate
 
 if __name__ == "__main__":
+    
+    if sys.version_info[0] < 3:
+        raise Exception("You must use Python 3 or higher. Recommended version is Python 3.7")
+
     parser = ArgumentParser()
     parser.add_argument("--config", required=True, help="path to config")
     parser.add_argument("--mode", default="train", choices=["train", "reconstruction", "animate"])
