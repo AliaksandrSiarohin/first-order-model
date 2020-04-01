@@ -8,7 +8,7 @@ from tqdm import tqdm
 import imageio
 import numpy as np
 from skimage.transform import resize
-
+from skimage import img_as_ubyte
 import torch
 from sync_batchnorm import DataParallelWithCallback
 
@@ -16,6 +16,7 @@ from modules.generator import OcclusionAwareGenerator
 from modules.keypoint_detector import KPDetector
 from animate import normalize_kp
 from scipy.spatial import ConvexHull
+
 
 if sys.version_info[0] < 3:
     raise Exception("You must use Python 3 or higher. Recommended version is Python 3.7")
