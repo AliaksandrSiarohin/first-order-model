@@ -27,7 +27,7 @@ There are several configuration (```config/dataset_name.yaml```) files one for e
 
 
 ### Pre-trained checkpoint
-Checkpoints can be found under following link: [checkpoint](https://yadi.sk/d/lEw8uRm140L_eQ).
+Checkpoints can be found under following link: [google-drive](https://drive.google.com/open?id=1PyQJmkdCsAkOYwUyaj_l-l0as-iLDgeH) or [yandex-disk](https://yadi.sk/d/lEw8uRm140L_eQ).
 
 ### Animation Demo
 To run a demo, download checkpoint and run the following command:
@@ -36,7 +36,7 @@ python demo.py  --config config/dataset_name.yaml --driving_video path/to/drivin
 ```
 The result will be stored in ```result.mp4```.
 
-The driving videos and source images should be cropped before it can be used in our method. To obtain some semi-automatic crop suggestions ```python crop-video.py --inp some_youtube_video.mp4```. It will generate commands for crops using ffmpeg. In order to use the script face-alligment library is needed:
+The driving videos and source images should be cropped before it can be used in our method. To obtain some semi-automatic crop suggestions you can use ```python crop-video.py --inp some_youtube_video.mp4```. It will generate commands for crops using ffmpeg. In order to use the script, face-alligment library is needed:
 ```
 git clone https://github.com/1adrianb/face-alignment
 cd face-alignment
@@ -50,7 +50,9 @@ python setup.py install
 We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```.
 
 ### Training
-**Note: It is important to use pytroch==1.0.0 for training. Higher versions of pytorch have strage bilinear warping behavior, because of it model diverge.**
+
+**Note: It is important to use pytorch==1.0.0 for training. Higher versions of pytorch have strange bilinear warping behavior, because of it model diverge.**
+
 To train a model on specific dataset run:
 ```
 CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py config/dataset_name.yaml --device_ids 0,1,2,3
