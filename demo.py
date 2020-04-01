@@ -22,7 +22,7 @@ from scipy.spatial import ConvexHull
 def load_checkpoints(config_path, checkpoint_path):
 
     with open(config_path) as f:
-        config = yaml.load(f)
+        config = yaml.load(f, Loader=yaml.FullLoader)
 
     generator = OcclusionAwareGenerator(**config['model_params']['generator_params'],
                                         **config['model_params']['common_params'])
@@ -132,5 +132,5 @@ if __name__ == "__main__":
         predictions = predictions_backward[::-1] + predictions_forward[1:]
     else:
         predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale)
-    imageio.mimsave(opt.result_video, predictions, fps=fps)
+    imageio.mimsave(opt.result_video, [img_as_ubyte(frame) for frame in predictions], fps=fps)
 
