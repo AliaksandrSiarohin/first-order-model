@@ -8,6 +8,7 @@ from tqdm import tqdm
 import imageio
 import numpy as np
 from skimage.transform import resize
+from skimage import img_as_ubyte
 
 import torch
 from sync_batchnorm import DataParallelWithCallback
