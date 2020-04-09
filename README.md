@@ -55,7 +55,7 @@ We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```.
 
 To train a model on specific dataset run:
 ```
-CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py config/dataset_name.yaml --device_ids 0,1,2,3
+CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py --config config/dataset_name.yaml --device_ids 0,1,2,3
 ```
 The code will create a folder in the log directory (each run will create a time-stamped new directory).
 Checkpoints will be saved to this folder.
@@ -67,7 +67,7 @@ By default the batch size is tunned to run on 2 or 4 Titan-X gpu (appart from sp
 
 To evaluate the reconstruction performance run:
 ```
-CUDA_VISIBLE_DEVICES=0 python run.py config/dataset_name.yaml --mode reconstruction --checkpoint path/to/checkpoint
+CUDA_VISIBLE_DEVICES=0 python run.py --config config/dataset_name.yaml --mode reconstruction --checkpoint path/to/checkpoint
 ```
 You will need to specify the path to the checkpoint,
 the ```reconstruction``` subfolder will be created in the checkpoint folder.
@@ -78,7 +78,7 @@ Instructions for computing metrics from the paper can be found: https://github.c
 
 In order to animate videos run:
 ```
-CUDA_VISIBLE_DEVICES=0 python run.py config/dataset_name.yaml --mode animate --checkpoint path/to/checkpoint
+CUDA_VISIBLE_DEVICES=0 python run.py --config config/dataset_name.yaml --mode animate --checkpoint path/to/checkpoint
 ```
 You will need to specify the path to the checkpoint,
 the ```animation``` subfolder will be created in the same folder as the checkpoint.
