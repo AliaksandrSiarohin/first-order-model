@@ -64,7 +64,7 @@ And now that we have the container available locally, we can use it to run the d
 ```
 docker run -it --rm --gpus all \
        -v $HOME/first-order-model:/app first-order-model \
-        python3 demo.py --config config/vox-256.yaml \
+       python3 demo.py --config config/vox-256.yaml \
            --driving_video driving.mp4 \
            --source_image source.png  \ 
            --checkpoint vox-cpk.pth.tar \ 
