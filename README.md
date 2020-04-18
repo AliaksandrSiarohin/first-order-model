@@ -62,20 +62,14 @@ docker build -t first-order-model .
 And now that we have the container available locally, we can use it to run the demo.
 
 ```
-docker run -it --rm first-order-model python3 demo.py --help
-
 docker run -it --rm --gpus all \
-  -v $HOME/Videos/deepfake_input.mp4:/tmp/video.mp4:ro \
-  -v $HOME/Pictures/deepfake_input.jpg:/tmp/picture.jpg:ro \
-  -v $HOME/Downloads/vox-cpk.pth.tar:/tmp/model.pth.tar:ro \
-  -v /tmp/out:/tmp/out \
-  first-order-model \
-  python3 demo.py --config config/vox-256.yaml \
-    --driving_video /tmp/video.mp4 \
-    --source_image /tmp/picture.jpg \
-    --checkpoint /tmp/model.pth.tar \
-    --result_video /tmp/out/result.mp4 \
-    --relative --adapt_scale
+       -v $HOME/first-order-model:/app first-order-model \
+        python3 demo.py --config config/vox-256.yaml \
+           --driving_video driving.mp4 \
+           --source_image source.png  \ 
+           --checkpoint vox-cpk.pth.tar \ 
+           --result_video result.mp4 \
+           --relative --adapt_scale
 ```
 
 ### Colab Demo 
