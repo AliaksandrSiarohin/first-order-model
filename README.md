@@ -44,6 +44,34 @@ pip install -r requirements.txt
 python setup.py install
 ```
 
+### Animation demo with Docker
+
+If you are having trouble getting the demo to work because of library compatibility issues,
+and you're running Linux, you might try running it inside a Docker container, which would
+give you better control over the execution environment.
+
+Requirements: Docker 19.03+ and [nvidia-docker](https://github.com/NVIDIA/nvidia-docker)
+installed and able to successfully run the `nvidia-docker` usage tests.
+
+We'll first build the container.
+
+```
+docker build -t first-order-model .
+```
+
+And now that we have the container available locally, we can use it to run the demo.
+
+```
+docker run -it --rm --gpus all \
+       -v $HOME/first-order-model:/app first-order-model \
+        python3 demo.py --config config/vox-256.yaml \
+           --driving_video driving.mp4 \
+           --source_image source.png  \ 
+           --checkpoint vox-cpk.pth.tar \ 
+           --result_video result.mp4 \
+           --relative --adapt_scale
+```
+
 ### Colab Demo 
 We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```.
 
