@@ -131,8 +131,13 @@ if __name__ == "__main__":
     source_image = imageio.imread(opt.source_image)
     reader = imageio.get_reader(opt.driving_video)
     fps = reader.get_meta_data()['fps']
+    driving_video = []
+    try:
+        for im in reader:
+            driving_video.append(im)
+    except RuntimeError:
+        pass
     reader.close()
-    driving_video = imageio.mimread(opt.driving_video, memtest=False)
 
     source_image = resize(source_image, (256, 256))[..., :3]
     driving_video = [resize(frame, (256, 256))[..., :3] for frame in driving_video]
