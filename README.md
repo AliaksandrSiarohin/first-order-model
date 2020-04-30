@@ -27,7 +27,7 @@ There are several configuration (```config/dataset_name.yaml```) files one for e
 
 
 ### Pre-trained checkpoint
-Checkpoints can be found under following link: [checkpoint](https://yadi.sk/d/lEw8uRm140L_eQ).
+Checkpoints can be found under following link: [google-drive](https://drive.google.com/open?id=1PyQJmkdCsAkOYwUyaj_l-l0as-iLDgeH) or [yandex-disk](https://yadi.sk/d/lEw8uRm140L_eQ).
 
 ### Animation Demo
 To run a demo, download checkpoint and run the following command:
@@ -44,16 +44,50 @@ pip install -r requirements.txt
 python setup.py install
 ```
 
+### Animation demo with Docker
 
+If you are having trouble getting the demo to work because of library compatibility issues,
+and you're running Linux, you might try running it inside a Docker container, which would
+give you better control over the execution environment.
+
+Requirements: Docker 19.03+ and [nvidia-docker](https://github.com/NVIDIA/nvidia-docker)
+installed and able to successfully run the `nvidia-docker` usage tests.
+
+We'll first build the container.
+
+```
+docker build -t first-order-model .
+```
+
+And now that we have the container available locally, we can use it to run the demo.
+
+```
+docker run -it --rm --gpus all \
+       -v $HOME/first-order-model:/app first-order-model \
+       python3 demo.py --config config/vox-256.yaml \
+           --driving_video driving.mp4 \
+           --source_image source.png  \ 
+           --checkpoint vox-cpk.pth.tar \ 
+           --result_video result.mp4 \
+           --relative --adapt_scale
+```
 
 ### Colab Demo 
 We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```.
 
+### Face-swap
+It is possible to modify the method to perform face-swap using supervised segmentation masks.
+![Screenshot](sup-mat/face-swap.gif)
+For both unsupervised and supervised video editing, such as face-swap, please refer to [Motion Co-Segmentation](https://github.com/AliaksandrSiarohin/motion-cosegmentation).
+
+
 ### Training
-**Note: It is important to use pytroch==1.0.0 for training. Higher versions of pytorch have strage bilinear warping behavior, because of it model diverge.**
+
+**Note: It is important to use pytorch==1.0.0 for training. Higher versions of pytorch have strange bilinear warping behavior, because of it model diverge.**
+
 To train a model on specific dataset run:
 ```
-CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py config/dataset_name.yaml --device_ids 0,1,2,3
+CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py --config config/dataset_name.yaml --device_ids 0,1,2,3
 ```
 The code will create a folder in the log directory (each run will create a time-stamped new directory).
 Checkpoints will be saved to this folder.
@@ -65,7 +99,7 @@ By default the batch size is tunned to run on 2 or 4 Titan-X gpu (appart from sp
 
 To evaluate the reconstruction performance run:
 ```
-CUDA_VISIBLE_DEVICES=0 python run.py config/dataset_name.yaml --mode reconstruction --checkpoint path/to/checkpoint
+CUDA_VISIBLE_DEVICES=0 python run.py --config config/dataset_name.yaml --mode reconstruction --checkpoint path/to/checkpoint
 ```
 You will need to specify the path to the checkpoint,
 the ```reconstruction``` subfolder will be created in the checkpoint folder.
@@ -76,7 +110,7 @@ Instructions for computing metrics from the paper can be found: https://github.c
 
 In order to animate videos run:
 ```
-CUDA_VISIBLE_DEVICES=0 python run.py config/dataset_name.yaml --mode animate --checkpoint path/to/checkpoint
+CUDA_VISIBLE_DEVICES=0 python run.py --config config/dataset_name.yaml --mode animate --checkpoint path/to/checkpoint
 ```
 You will need to specify the path to the checkpoint,
 the ```animation``` subfolder will be created in the same folder as the checkpoint.
