@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--cpu", dest="cpu", action="store_true", help="cpu mode.")
 
-    parser.add_argument("--suppress", default=True, type=bool, dest="suppress", help="Whether or not to suppress warnings")
+    parser.add_argument("--suppress", action="store_true", help="Whether or not to suppress warnings")
 
 
     parser.set_defaults(relative=False)
