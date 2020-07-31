@@ -35,22 +35,22 @@ def load_checkpoints(config_path, checkpoint_path, cpu=False):
                              **config['model_params']['common_params'])
     if not cpu:
         kp_detector.cuda()
-    
+
     if cpu:
         checkpoint = torch.load(checkpoint_path, map_location=torch.device('cpu'))
     else:
         checkpoint = torch.load(checkpoint_path)
- 
+
     generator.load_state_dict(checkpoint['generator'])
     kp_detector.load_state_dict(checkpoint['kp_detector'])
-    
+
     if not cpu:
         generator = DataParallelWithCallback(generator)
         kp_detector = DataParallelWithCallback(kp_detector)
 
     generator.eval()
     kp_detector.eval()
-    
+
     return generator, kp_detector
 
 
@@ -110,23 +110,29 @@ if __name__ == "__main__":
     parser.add_argument("--source_image", default='sup-mat/source.png', help="path to source image")
     parser.add_argument("--driving_video", default='sup-mat/source.png', help="path to driving video")
     parser.add_argument("--result_video", default='result.mp4', help="path to output")
- 
+
     parser.add_argument("--relative", dest="relative", action="store_true", help="use relative or absolute keypoint coordinates")
     parser.add_argument("--adapt_scale", dest="adapt_scale", action="store_true", help="adapt movement scale based on convex hull of keypoints")
 
-    parser.add_argument("--find_best_frame", dest="find_best_frame", action="store_true", 
+    parser.add_argument("--find_best_frame", dest="find_best_frame", action="store_true",
                         help="Generate from the frame that is the most alligned with source. (Only for faces, requires face_aligment lib)")
 
-    parser.add_argument("--best_frame", dest="best_frame", type=int, default=None,  
+    parser.add_argument("--best_frame", dest="best_frame", type=int, default=None,
                         help="Set frame to start from.")
- 
+
     parser.add_argument("--cpu", dest="cpu", action="store_true", help="cpu mode.")
- 
+
+    parser.add_argument("--suppress", default=True, type=bool, dest="suppress", help="Whether or not to suppress warnings")
+
 
     parser.set_defaults(relative=False)
     parser.set_defaults(adapt_scale=False)
 
     opt = parser.parse_args()
+
+    if opt.suppress:
+        import warnings
+        warnings.simplefilter("ignore")
 
     source_image = imageio.imread(opt.source_image)
     reader = imageio.get_reader(opt.driving_video)
@@ -154,4 +160,3 @@ if __name__ == "__main__":
     else:
         predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale, cpu=opt.cpu)
     imageio.mimsave(opt.result_video, [img_as_ubyte(frame) for frame in predictions], fps=fps)
-
