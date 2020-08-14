@@ -4,10 +4,12 @@ import os
 from flask import request
 from werkzeug.utils import secure_filename
 from flask_api import FlaskAPI
+import processing as p
+import numpy as np
 
 app = FlaskAPI(__name__)
 
-UPLOAD_FOLDER = './uploads'
+UPstream_FOLDER = './uploads'
 
 def allowed_file(filename, extension = {'png', 'jpg', 'jpeg'}):
     return '.' in filename and \
@@ -31,17 +33,24 @@ def upload_file():
     if request.method == 'POST':
         error = verifyFile(request, 'source', {'jpg', 'jpeg', 'png'})
         if error: return error
-        status = request.files['source']
+        status_req = request.files['source']
 
         error = verifyFile(request, 'driving', {'mp4'})
         if error: return error
-        driving = request.files['driving']
+        driving_req = request.files['driving']
 
-        filename = secure_filename(status.filename)
-        status.save(os.path.join(UPLOAD_FOLDER, filename))
+        status = p.img2opencv(status_req)
+        status_req.close()
+        status = p.crop_resize(status)
+        # cv2.imwrite('uploads/image.png',status)
 
-        filename = secure_filename(driving.filename)
-        driving.save(os.path.join(UPLOAD_FOLDER, filename))
+        driving = p.vid2opencv(driving_req)
+        driving_req.close()
+        driving = p.v_crop_resize(driving)
 
-        return {'status': "Sucess"}, 200
+        # https://medium.com/analytics-vidhya/receive-or-return-files-flask-api-8389d42b0684
+        return {'status': "Sucess", 'shape': np.array(list(driving)).shape}
 
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port = 5000, threaded = True, debug = True)
