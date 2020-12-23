@@ -231,6 +231,8 @@ class AntiAliasInterpolation2d(nn.Module):
         self.register_buffer('weight', kernel)
         self.groups = channels
         self.scale = scale
+        inv_scale = 1 / scale
+        self.int_inv_scale = int(inv_scale)
 
     def forward(self, input):
         if self.scale == 1.0:
@@ -238,6 +240,6 @@ class AntiAliasInterpolation2d(nn.Module):
 
         out = F.pad(input, (self.ka, self.kb, self.ka, self.kb))
         out = F.conv2d(out, weight=self.weight, groups=self.groups)
-        out = F.interpolate(out, scale_factor=(self.scale, self.scale))
+        out = out[:, :, ::self.int_inv_scale, ::self.int_inv_scale]
 
         return out
