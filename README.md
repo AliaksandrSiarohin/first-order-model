@@ -83,8 +83,6 @@ For both unsupervised and supervised video editing, such as face-swap, please re
 
 ### Training
 
-**Note: It is important to use pytorch==1.0.0 for training. Higher versions of pytorch have strange bilinear warping behavior, because of it model diverge.**
-
 To train a model on specific dataset run:
 ```
 CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py --config config/dataset_name.yaml --device_ids 0,1,2,3
