@@ -50,7 +50,11 @@ class Logger:
     @staticmethod
     def load_cpk(checkpoint_path, generator=None, discriminator=None, kp_detector=None,
                  optimizer_generator=None, optimizer_discriminator=None, optimizer_kp_detector=None):
-        checkpoint = torch.load(checkpoint_path)
+        if torch.cuda.is_available():
+            map_location = None
+        else:
+            map_location = 'cpu'
+        checkpoint = torch.load(checkpoint_path, map_location)
         if generator is not None:
             generator.load_state_dict(checkpoint['generator'])
         if kp_detector is not None:
