@@ -123,7 +123,6 @@ class Visualizer:
         if self.draw_border:
             images = np.copy(images)
             images[:, :, [0, -1]] = (1, 1, 1)
-            images[:, :, [0, -1]] = (1, 1, 1)
         return np.concatenate(list(images), axis=0)
 
     def create_image_grid(self, *args):
