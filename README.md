@@ -16,7 +16,7 @@ The videos on the left show the driving videos. The first row on the right for e
 
 ### Installation
 
-We support ```python3```. To install the dependencies run:
+We support ```python3```, more precisely `<=3.7`. To install the dependencies run:
 ```
 pip install -r requirements.txt
 ```
