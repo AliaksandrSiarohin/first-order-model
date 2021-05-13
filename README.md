@@ -75,7 +75,8 @@ docker run -it --rm --gpus all \
 ```
 
 ### Colab Demo 
-We prepare a special demo for the google-colab, see: ```demo-colab.ipynb```.
+@graphemecluster prepared a gui-demo for the google-colab see: ```demo.ipynb```.
+For old demo, see ```old-demo.ipynb```.
 
 ### Face-swap
 It is possible to modify the method to perform face-swap using supervised segmentation masks.
