@@ -75,7 +75,8 @@ docker run -it --rm --gpus all \
 ```
 
 ### Colab Demo 
-@graphemecluster prepared a gui-demo for the google-colab see: ```demo.ipynb```.
+@graphemecluster prepared a gui-demo for the google-colab see: ```demo.ipynb```. To run press ```Open In Colab``` button.
+
 For old demo, see ```old-demo.ipynb```.
 
 ### Face-swap
