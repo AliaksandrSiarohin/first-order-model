@@ -139,8 +139,8 @@ if __name__ == "__main__":
         pass
     reader.close()
 
-    source_image = resize(source_image, (256, 256))[..., :3]
-    driving_video = [resize(frame, (256, 256))[..., :3] for frame in driving_video]
+    source_image = resize(source_image, (512, 512))[..., :3]
+    driving_video = [resize(frame, (512, 512))[..., :3] for frame in driving_video]
     generator, kp_detector = load_checkpoints(config_path=opt.config, checkpoint_path=opt.checkpoint, cpu=opt.cpu)
 
     if opt.find_best_frame or opt.best_frame is not None:

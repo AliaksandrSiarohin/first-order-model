@@ -202,7 +202,7 @@ class AntiAliasInterpolation2d(nn.Module):
     """
     def __init__(self, channels, scale):
         super(AntiAliasInterpolation2d, self).__init__()
-        sigma = (1 / scale - 1) / 2
+        sigma = 1.5
         kernel_size = 2 * round(sigma * 4) + 1
         self.ka = kernel_size // 2
         self.kb = self.ka - 1 if kernel_size % 2 == 0 else self.ka
