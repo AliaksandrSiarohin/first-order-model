@@ -1,8 +1,9 @@
+import face_alignment
 from torch import nn
 import torch
 import torch.nn.functional as F
 from modules.util import AntiAliasInterpolation2d, make_coordinate_grid
-from torchvision import models
+from torchvision import models, transforms
 import numpy as np
 from torch.autograd import grad
 
@@ -54,17 +55,45 @@ class ImagePyramide(torch.nn.Module):
     """
     Create image pyramide for computing pyramide perceptual loss. See Sec 3.3
     """
-    def __init__(self, scales, num_channels):
+    def __init__(self, scales, crop, num_channels):
         super(ImagePyramide, self).__init__()
         downs = {}
         for scale in scales:
             downs[str(scale).replace('.', '-')] = AntiAliasInterpolation2d(num_channels, scale)
         self.downs = nn.ModuleDict(downs)
+        self.crop = crop
+        if self.crop:
+            self.resize = transforms.Resize((128, 128))
+            self.fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, device='cuda:0')
 
+    def get_face_crop(self, x):        
+        landmarks = self.fa.get_landmarks_from_batch((x * 255).to(x.device))
+        
+        res = []
+        for i in range(x.shape[0]):
+            if len(landmarks[i]) > 0:
+                x_min, y_min = torch.tensor(landmarks[i][:68]).min(dim=0)[0].int().to(x.device)
+                x_max, y_max = torch.tensor(landmarks[i][:68]).max(dim=0)[0].int().to(x.device)
+
+                x_min, x_max = torch.clamp(torch.tensor([x_min, x_max]), 0, x.shape[-1])
+                y_min, y_max = torch.clamp(torch.tensor([y_min, y_max]), 0, x.shape[-2])
+                crop = x[i][:, y_min: y_max, x_min: x_max]
+                crop = self.resize(crop)
+#                 import pdb; pdb.set_trace()
+            else:
+                crop = self.resize(x[i])
+            
+            res.append(crop)
+        res = torch.stack(res)
+        return res
+        
     def forward(self, x):
         out_dict = {}
         for scale, down_module in self.downs.items():
             out_dict['prediction_' + str(scale).replace('-', '.')] = down_module(x)
+        if self.crop:
+            out_dict['prediction_crop'] = self.get_face_crop(x)
+
         return out_dict
 
 
@@ -136,8 +165,9 @@ class GeneratorFullModel(torch.nn.Module):
         self.discriminator = discriminator
         self.train_params = train_params
         self.scales = train_params['scales']
+        self.crop = train_params['crop']
         self.disc_scales = self.discriminator.scales
-        self.pyramid = ImagePyramide(self.scales, generator.num_channels)
+        self.pyramid = ImagePyramide(self.scales, self.crop, generator.num_channels)
         if torch.cuda.is_available():
             self.pyramid = self.pyramid.cuda()
 
@@ -162,14 +192,18 @@ class GeneratorFullModel(torch.nn.Module):
 
         if sum(self.loss_weights['perceptual']) != 0:
             value_total = 0
-            for scale in self.scales:
+            if self.crop:
+                gen_scales = self.scales + ['crop']
+            else:
+                gen_scales = self.scales
+            for scale in gen_scales:
                 x_vgg = self.vgg(pyramide_generated['prediction_' + str(scale)])
                 y_vgg = self.vgg(pyramide_real['prediction_' + str(scale)])
 
                 for i, weight in enumerate(self.loss_weights['perceptual']):
                     value = torch.abs(x_vgg[i] - y_vgg[i].detach()).mean()
                     value_total += self.loss_weights['perceptual'][i] * value
-                loss_values['perceptual'] = value_total
+            loss_values['perceptual'] = value_total
 
         if self.loss_weights['generator_gan'] != 0:
             discriminator_maps_generated = self.discriminator(pyramide_generated, kp=detach_kp(kp_driving))
@@ -218,7 +252,7 @@ class GeneratorFullModel(torch.nn.Module):
 
                 value = torch.abs(eye - value).mean()
                 loss_values['equivariance_jacobian'] = self.loss_weights['equivariance_jacobian'] * value
-
+        
         return loss_values, generated
 
 
@@ -234,7 +268,7 @@ class DiscriminatorFullModel(torch.nn.Module):
         self.discriminator = discriminator
         self.train_params = train_params
         self.scales = self.discriminator.scales
-        self.pyramid = ImagePyramide(self.scales, generator.num_channels)
+        self.pyramid = ImagePyramide(self.scales, crop=False, num_channels=generator.num_channels)
         if torch.cuda.is_available():
             self.pyramid = self.pyramid.cuda()
 

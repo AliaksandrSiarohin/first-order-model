@@ -1,4 +1,4 @@
-from tqdm import trange
+from tqdm import trange, tqdm
 import torch
 
 from torch.utils.data import DataLoader
@@ -47,9 +47,9 @@ def train(config, generator, discriminator, kp_detector, checkpoint, log_dir, da
 
     with Logger(log_dir=log_dir, visualizer_params=config['visualizer_params'], checkpoint_freq=train_params['checkpoint_freq']) as logger:
         for epoch in trange(start_epoch, train_params['num_epochs']):
-            for x in dataloader:
+            for x in tqdm(dataloader):
                 losses_generator, generated = generator_full(x)
-
+                
                 loss_values = [val.mean() for val in losses_generator.values()]
                 loss = sum(loss_values)
 

@@ -18,7 +18,12 @@ import torch
 
 from train import train
 from reconstruction import reconstruction
-from animate import animate
+from animate import animate, animate_and_compare
+
+import warnings
+# warnings.filterwarnings("ignore")
+
+
 
 if __name__ == "__main__":
     
@@ -27,9 +32,10 @@ if __name__ == "__main__":
 
     parser = ArgumentParser()
     parser.add_argument("--config", required=True, help="path to config")
-    parser.add_argument("--mode", default="train", choices=["train", "reconstruction", "animate"])
+    parser.add_argument("--mode", default="train", choices=["train", "reconstruction", "animate", "animate-compare"])
     parser.add_argument("--log_dir", default='log', help="path to log into")
     parser.add_argument("--checkpoint", default=None, help="path to checkpoint to restore")
+    parser.add_argument("--checkpoint_new", default=None, help="path to checkpoint to restore")    
     parser.add_argument("--device_ids", default="0", type=lambda x: list(map(int, x.split(','))),
                         help="Names of the devices comma separated.")
     parser.add_argument("--verbose", dest="verbose", action="store_true", help="Print model architecture")
@@ -70,7 +76,7 @@ if __name__ == "__main__":
         print(kp_detector)
 
     dataset = FramesDataset(is_train=(opt.mode == 'train'), **config['dataset_params'])
-
+    
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     if not os.path.exists(os.path.join(log_dir, os.path.basename(opt.config))):
@@ -85,3 +91,6 @@ if __name__ == "__main__":
     elif opt.mode == 'animate':
         print("Animate...")
         animate(config, generator, kp_detector, opt.checkpoint, log_dir, dataset)
+    elif opt.mode == 'animate-compare':
+        print("Animate and compare checkpoints...")
+        animate_and_compare(config, generator, kp_detector, [opt.checkpoint, opt.checkpoint_new], log_dir, dataset)
