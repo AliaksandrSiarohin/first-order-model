@@ -17,6 +17,8 @@ from modules.keypoint_detector import KPDetector
 from animate import normalize_kp
 from scipy.spatial import ConvexHull
 
+import moviepy
+import moviepy.editor as mpe
 
 if sys.version_info[0] < 3:
     raise Exception("You must use Python 3 or higher. Recommended version is Python 3.7")
@@ -121,10 +123,12 @@ if __name__ == "__main__":
                         help="Set frame to start from.")
  
     parser.add_argument("--cpu", dest="cpu", action="store_true", help="cpu mode.")
- 
+    
+    parser.add_argument("--audio_on", dest="audio_on", action="store_true", help="option to have audio on." )
 
     parser.set_defaults(relative=False)
     parser.set_defaults(adapt_scale=False)
+    parser.set_defaults(audio_on=False)
 
     opt = parser.parse_args()
 
@@ -154,4 +158,12 @@ if __name__ == "__main__":
     else:
         predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale, cpu=opt.cpu)
     imageio.mimsave(opt.result_video, [img_as_ubyte(frame) for frame in predictions], fps=fps)
+
+    if opt.audio_on:
+        video_clip = mpe.VideoFileClip(opt.result_video)
+        audio_clip = mpe.AudioFileClip(opt.driving_video)
+
+        final_clip = video_clip.set_audio(audio_clip)
+        file_name_with_audio = opt.result_video.split(".")[0] + "-with-audio.mp4"
+        final_clip.write_videofile(file_name_with_audio, fps=fps, codec='libx264', audio_codec='aac', write_logfile=True, ffmpeg_params=['-level','4.0','-b:a','128k'])
 
