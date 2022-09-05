@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings("ignore")
 import matplotlib
 matplotlib.use('Agg')
 import os, sys
@@ -24,7 +26,7 @@ if sys.version_info[0] < 3:
 def load_checkpoints(config_path, checkpoint_path, cpu=False):
 
     with open(config_path) as f:
-        config = yaml.load(f)
+        config = yaml.load(f, Loader=yaml.Loader)
 
     generator = OcclusionAwareGenerator(**config['model_params']['generator_params'],
                                         **config['model_params']['common_params'])
@@ -64,7 +66,7 @@ def make_animation(source_image, driving_video, generator, kp_detector, relative
         kp_source = kp_detector(source)
         kp_driving_initial = kp_detector(driving[:, :, 0])
 
-        for frame_idx in tqdm(range(driving.shape[2])):
+        for frame_idx in range(driving.shape[2]):
             driving_frame = driving[:, :, frame_idx]
             if not cpu:
                 driving_frame = driving_frame.cuda()
@@ -102,13 +104,13 @@ def find_best_frame(source, driving, cpu=False):
             frame_num = i
     return frame_num
 
-if __name__ == "__main__":
+def main():
     parser = ArgumentParser()
-    parser.add_argument("--config", required=True, help="path to config")
+    parser.add_argument("--config", default="./config/vox-256.yaml", help="path to config")
     parser.add_argument("--checkpoint", default='vox-cpk.pth.tar', help="path to checkpoint to restore")
 
-    parser.add_argument("--source_image", default='sup-mat/source.png', help="path to source image")
-    parser.add_argument("--driving_video", default='sup-mat/source.png', help="path to driving video")
+    parser.add_argument("--source_image", default='60.png', help="path to source image")
+    parser.add_argument("--driving_video", default='4qYaxn3c_ek#00089.txt#000.mp4', help="path to driving video")
     parser.add_argument("--result_video", default='result.mp4', help="path to output")
  
     parser.add_argument("--relative", dest="relative", action="store_true", help="use relative or absolute keypoint coordinates")
@@ -121,6 +123,8 @@ if __name__ == "__main__":
                         help="Set frame to start from.")
  
     parser.add_argument("--cpu", dest="cpu", action="store_true", help="cpu mode.")
+
+    parser.add_argument("--combine", action="store_true", help="combine driving video with synthetic video")
  
 
     parser.set_defaults(relative=False)
@@ -153,5 +157,14 @@ if __name__ == "__main__":
         predictions = predictions_backward[::-1] + predictions_forward[1:]
     else:
         predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale, cpu=opt.cpu)
-    imageio.mimsave(opt.result_video, [img_as_ubyte(frame) for frame in predictions], fps=fps)
+    
+    if opt.combine:
+        combine = [np.concatenate((p,d),axis=1) for p,d in zip(predictions, driving_video)]
+        imageio.mimsave(opt.result_video, [img_as_ubyte(frame) for frame in combine], fps=fps)
+    else:
+        imageio.mimsave(opt.result_video, [img_as_ubyte(frame) for frame in predictions], fps=fps)
 
+
+
+if __name__ == "__main__":
+    main()
