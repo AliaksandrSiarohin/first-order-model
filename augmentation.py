@@ -112,9 +112,10 @@ class RandomResize(object):
     size (tuple): (widht, height)
     """
 
-    def __init__(self, ratio=(3. / 4., 4. / 3.), interpolation='nearest'):
+    def __init__(self, size=None, ratio=(3. / 4., 4. / 3.), interpolation='nearest'):
         self.ratio = ratio
         self.interpolation = interpolation
+        self.size = size
 
     def __call__(self, clip):
         scaling_factor = random.uniform(self.ratio[0], self.ratio[1])
@@ -124,8 +125,11 @@ class RandomResize(object):
         elif isinstance(clip[0], PIL.Image.Image):
             im_w, im_h = clip[0].size
 
-        new_w = int(im_w * scaling_factor)
-        new_h = int(im_h * scaling_factor)
+        if self.size:
+            new_w, new_h = self.size
+        else:
+            new_w = int(im_w * scaling_factor)
+            new_h = int(im_h * scaling_factor)
         new_size = (new_w, new_h)
         resized = resize_clip(
             clip, new_size, interpolation=self.interpolation)
