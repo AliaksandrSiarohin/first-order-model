@@ -40,7 +40,7 @@ def read_video(name, frame_shape):
         video_array = video_array.reshape((-1,) + frame_shape)
         video_array = np.moveaxis(video_array, 1, 2)
     elif name.lower().endswith('.gif') or name.lower().endswith('.mp4') or name.lower().endswith('.mov'):
-        video = np.array(mimread(name))
+        video = np.array(mimread(name, memtest=False))
         if len(video.shape) == 3:
             video = np.array([gray2rgb(frame) for frame in video])
         if video.shape[-1] == 4:
@@ -70,12 +70,12 @@ class FramesDataset(Dataset):
         if os.path.exists(os.path.join(root_dir, 'train')):
             assert os.path.exists(os.path.join(root_dir, 'test'))
             print("Use predefined train-test split.")
-            if id_sampling:
-                train_videos = {os.path.basename(video).split('#')[0] for video in
-                                os.listdir(os.path.join(root_dir, 'train'))}
-                train_videos = list(train_videos)
-            else:
-                train_videos = os.listdir(os.path.join(root_dir, 'train'))
+            # if id_sampling:
+            #     train_videos = {os.path.basename(video).split('#')[0] for video in
+            #                     os.listdir(os.path.join(root_dir, 'train'))}
+            #     train_videos = list(train_videos)
+            # else:
+            train_videos = os.listdir(os.path.join(root_dir, 'train'))
             test_videos = os.listdir(os.path.join(root_dir, 'test'))
             self.root_dir = os.path.join(self.root_dir, 'train' if is_train else 'test')
         else:
@@ -100,7 +100,9 @@ class FramesDataset(Dataset):
     def __getitem__(self, idx):
         if self.is_train and self.id_sampling:
             name = self.videos[idx]
-            path = np.random.choice(glob.glob(os.path.join(self.root_dir, name + '*.mp4')))
+            video_id = np.random.choice(os.listdir(os.path.join(self.root_dir, name)))
+            path = np.random.choice(glob.glob(os.path.join(self.root_dir, name, video_id, '*.mp4')))
+            # path = np.random.choice(glob.glob(os.path.join(self.root_dir, name + '*.mp4')))
         else:
             name = self.videos[idx]
             path = os.path.join(self.root_dir, name)
@@ -151,7 +153,11 @@ class DatasetRepeater(Dataset):
         return self.num_repeats * self.dataset.__len__()
 
     def __getitem__(self, idx):
-        return self.dataset[idx % self.dataset.__len__()]
+        while True:
+            try:
+                return self.dataset[idx % self.dataset.__len__()]
+            except:
+                pass
 
 
 class PairedDataset(Dataset):
