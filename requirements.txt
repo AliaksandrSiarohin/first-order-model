@@ -1,13 +1,14 @@
-imageio==2.3.0
+imageio==2.13.3
 matplotlib==2.2.2
-numpy==1.15.0
+numpy==1.19.5
 pandas==0.23.4
 python-dateutil==2.7.3
 pytz==2018.5
 PyYAML==5.1
-scikit-image==0.14.0
+scikit-image==0.14.2
 scikit-learn==0.19.2
 scipy==1.1.0
 torch==1.0.0
 torchvision==0.2.1
 tqdm==4.24.0
+moviepy==1.0.3
