@@ -1,6 +1,6 @@
 imageio==2.13.3
 matplotlib==2.2.2
-numpy==1.19.5
+numpy==1.22.0
 pandas==0.23.4
 python-dateutil==2.7.3
 pytz==2018.5
