@@ -1,9 +1,7 @@
-import matplotlib
-matplotlib.use('Agg')
-import os, sys
+import sys
 import yaml
 from argparse import ArgumentParser
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 import imageio
 import numpy as np
@@ -15,10 +13,11 @@ from sync_batchnorm import DataParallelWithCallback
 from modules.generator import OcclusionAwareGenerator
 from modules.keypoint_detector import KPDetector
 from animate import normalize_kp
-from scipy.spatial import ConvexHull
 
-import moviepy
-import moviepy.editor as mpe
+import ffmpeg
+from os.path import splitext
+from shutil import copyfileobj
+from tempfile import NamedTemporaryFile
 
 if sys.version_info[0] < 3:
     raise Exception("You must use Python 3 or higher. Recommended version is Python 3.7")
@@ -37,22 +36,22 @@ def load_checkpoints(config_path, checkpoint_path, cpu=False):
                              **config['model_params']['common_params'])
     if not cpu:
         kp_detector.cuda()
-    
+
     if cpu:
         checkpoint = torch.load(checkpoint_path, map_location=torch.device('cpu'))
     else:
         checkpoint = torch.load(checkpoint_path)
- 
+
     generator.load_state_dict(checkpoint['generator'])
     kp_detector.load_state_dict(checkpoint['kp_detector'])
-    
+
     if not cpu:
         generator = DataParallelWithCallback(generator)
         kp_detector = DataParallelWithCallback(kp_detector)
 
     generator.eval()
     kp_detector.eval()
-    
+
     return generator, kp_detector
 
 
@@ -80,7 +79,8 @@ def make_animation(source_image, driving_video, generator, kp_detector, relative
     return predictions
 
 def find_best_frame(source, driving, cpu=False):
-    import face_alignment
+    import face_alignment  # type: ignore (local file)
+    from scipy.spatial import ConvexHull
 
     def normalize_kp(kp):
         kp = kp - kp.mean(axis=0, keepdims=True)
@@ -110,21 +110,20 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint", default='vox-cpk.pth.tar', help="path to checkpoint to restore")
 
     parser.add_argument("--source_image", default='sup-mat/source.png', help="path to source image")
-    parser.add_argument("--driving_video", default='sup-mat/source.png', help="path to driving video")
+    parser.add_argument("--driving_video", default='driving.mp4', help="path to driving video")
     parser.add_argument("--result_video", default='result.mp4', help="path to output")
- 
+
     parser.add_argument("--relative", dest="relative", action="store_true", help="use relative or absolute keypoint coordinates")
     parser.add_argument("--adapt_scale", dest="adapt_scale", action="store_true", help="adapt movement scale based on convex hull of keypoints")
 
-    parser.add_argument("--find_best_frame", dest="find_best_frame", action="store_true", 
+    parser.add_argument("--find_best_frame", dest="find_best_frame", action="store_true",
                         help="Generate from the frame that is the most alligned with source. (Only for faces, requires face_aligment lib)")
 
-    parser.add_argument("--best_frame", dest="best_frame", type=int, default=None,  
-                        help="Set frame to start from.")
- 
+    parser.add_argument("--best_frame", dest="best_frame", type=int, default=None, help="Set frame to start from.")
+
     parser.add_argument("--cpu", dest="cpu", action="store_true", help="cpu mode.")
-    
-    parser.add_argument("--audio_on", dest="audio_on", action="store_true", help="option to have audio on." )
+
+    parser.add_argument("--audio", dest="audio", action="store_true", help="copy audio to output from the driving video" )
 
     parser.set_defaults(relative=False)
     parser.set_defaults(adapt_scale=False)
@@ -159,11 +158,8 @@ if __name__ == "__main__":
         predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative, adapt_movement_scale=opt.adapt_scale, cpu=opt.cpu)
     imageio.mimsave(opt.result_video, [img_as_ubyte(frame) for frame in predictions], fps=fps)
 
-    if opt.audio_on:
-        video_clip = mpe.VideoFileClip(opt.result_video)
-        audio_clip = mpe.AudioFileClip(opt.driving_video)
-
-        final_clip = video_clip.set_audio(audio_clip)
-        file_name_with_audio = opt.result_video.split(".")[0] + "-with-audio.mp4"
-        final_clip.write_videofile(file_name_with_audio, fps=fps, codec='libx264', audio_codec='aac', write_logfile=True, ffmpeg_params=['-level','4.0','-b:a','128k'])
-
+    if opt.audio:
+        with NamedTemporaryFile(suffix='.' + splitext(opt.result_video)[1]) as output:
+            ffmpeg.output(ffmpeg.input(opt.result_video).video, ffmpeg.input(opt.driving_video).audio, output.name, c='copy').run()
+            with open(opt.result_video, 'wb') as result:
+                copyfileobj(output, result)
