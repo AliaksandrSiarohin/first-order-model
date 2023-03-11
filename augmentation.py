@@ -9,7 +9,6 @@ import numpy as np
 import PIL
 
 from skimage.transform import resize, rotate
-from skimage.util import pad
 import torchvision
 
 import warnings
@@ -36,7 +35,7 @@ def pad_clip(clip, h, w):
     pad_h = (0, 0) if h < im_h else ((h - im_h) // 2, (h - im_h + 1) // 2)
     pad_w = (0, 0) if w < im_w else ((w - im_w) // 2, (w - im_w + 1) // 2)
 
-    return pad(clip, ((0, 0), pad_h, pad_w, (0, 0)), mode='edge')
+    return np.pad(clip, ((0, 0), pad_h, pad_w, (0, 0)), mode='edge')
 
 
 def resize_clip(clip, size, interpolation='bilinear'):
