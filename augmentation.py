@@ -9,7 +9,7 @@ import numpy as np
 import PIL
 
 from skimage.transform import resize, rotate
-from skimage.util import pad
+from np import pad
 import torchvision
 
 import warnings
