@@ -77,9 +77,12 @@ docker run -it --rm --gpus all \
 ```
 
 ### Colab Demo 
-@graphemecluster prepared a gui-demo for the google-colab see: ```demo.ipynb```. To run press ```Open In Colab``` button.
 
-For old demo, see ```old-demo.ipynb```.
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AliaksandrSiarohin/first-order-model/blob/master/demo.ipynb) [![Open in Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://kaggle.com/kernels/welcome?src=https://github.com/AliaksandrSiarohin/first-order-model/blob/master/demo.ipynb)
+
+@graphemecluster prepared a GUI demo for the Google Colab. It also works in Kaggle. For the source code, see [```demo.ipynb```](https://github.com/AliaksandrSiarohin/first-order-model/blob/master/demo.ipynb).
+
+For the old demo, see [```old_demo.ipynb```](https://github.com/AliaksandrSiarohin/first-order-model/blob/master/old_demo.ipynb).
 
 ### Face-swap
 It is possible to modify the method to perform face-swap using supervised segmentation masks.
