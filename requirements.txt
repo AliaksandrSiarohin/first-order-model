@@ -9,7 +9,7 @@ pytz==2022.2.1
 PyYAML==6.0
 scikit-image==0.19.3
 scikit-learn==1.1.2
-scipy==1.9.1
+scipy==1.10.0
 torch==1.12.1
 torchvision==0.13.1
 tqdm==4.64.1
