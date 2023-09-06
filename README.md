@@ -40,7 +40,7 @@ python demo.py  --config config/dataset_name.yaml --driving_video path/to/drivin
 ```
 The result will be stored in ```result.mp4```.
 
-The driving videos and source images should be cropped before it can be used in our method. To obtain some semi-automatic crop suggestions you can use ```python crop-video.py --inp some_youtube_video.mp4```. It will generate commands for crops using ffmpeg. In order to use the script, face-alligment library is needed:
+The driving videos and source images should be cropped before it can be used in our method. To obtain some semi-automatic crop suggestions you can use ```python crop-video.py --inp some_youtube_video.mp4```. It will generate commands for crops using ffmpeg. In order to use the script, face-alignment library is needed:
 ```
 git clone https://github.com/1adrianb/face-alignment
 cd face-alignment
@@ -100,7 +100,7 @@ The code will create a folder in the log directory (each run will create a time-
 Checkpoints will be saved to this folder.
 To check the loss values during training see ```log.txt```.
 You can also check training data reconstructions in the ```train-vis``` subfolder.
-By default the batch size is tunned to run on 2 or 4 Titan-X gpu (appart from speed it does not make much difference). You can change the batch size in the train_params in corresponding ```.yaml``` file.
+By default the batch size is tunned to run on 2 or 4 Titan-X gpu (apart from speed it does not make much difference). You can change the batch size in the train_params in corresponding ```.yaml``` file.
 
 ### Evaluation on video reconstruction
 
@@ -129,7 +129,7 @@ by using **absolute** keypoint locations or by using **relative** keypoint locat
 
 1) <i>Animation using absolute coordinates:</i> the animation is performed using the absolute postions of the driving video and appearance of the source image.
 In this way there are no specific requirements for the driving video and source appearance that is used.
-However this usually leads to poor performance since unrelevant details such as shape is transfered.
+However this usually leads to poor performance since irrelevant details such as shape is transferred.
 Check animate parameters in ```taichi-256.yaml``` to enable this mode.
 
 <img src="sup-mat/absolute-demo.gif" width="512"> 
@@ -137,7 +137,7 @@ Check animate parameters in ```taichi-256.yaml``` to enable this mode.
 2) <i>Animation using relative coordinates:</i> from the driving video we first estimate the relative movement of each keypoint,
 then we add this movement to the absolute position of keypoints in the source image.
 This keypoint along with source image is used for animation. This usually leads to better performance, however this requires
-that the object in the first frame of the video and in the source image have the same pose
+that the object in the first frame of the video and in the source image have the same pose.
 
 <img src="sup-mat/relative-demo.gif" width="512"> 
 
