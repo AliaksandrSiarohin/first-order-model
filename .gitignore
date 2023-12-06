@@ -1,3 +1,8 @@
 /.vscode
 __pycache__
 /venv
+.ipynb_checkpoints/
+checkpoints/
+crop.mp4
+result.mp4
+first-order-motion-model-20231205T144201Z-001.zip
