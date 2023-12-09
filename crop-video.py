@@ -83,7 +83,10 @@ def compute_bbox_trajectories(trajectories, fps, frame_shape, args):
 
 def process_video(args):
     device = 'cpu' if args.cpu else 'cuda'
-    fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device=device)
+    try:
+        fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device=device)
+    except:
+        fa = face_alignment.FaceAlignment(face_alignment.LandmarksType.TWO_D, flip_input=False, device=device)
     video = imageio.get_reader(args.inp)
 
     trajectories = []
